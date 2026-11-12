@@ -1,6 +1,7 @@
 import { hop } from './bubble';
 import { isMoving, makeCrowd, stepCrowd, type Walker } from './world/crowd';
 import { loadMap, type WorldMap } from './world/map';
+import { cloudinessFor, Sky } from './world/clouds';
 import { INK, MAP_SCALE, PLACE_COLOURS, paintMap } from './world/paint';
 import { clockText, darkness, goldenness, londonTime, owlsOut, phaseAt, skyLabel, sunElevation, sunTimes } from './world/sky';
 
@@ -134,6 +135,7 @@ function start(map: WorldMap): void {
   const picture = paintMap(map);
   const crowd = makeCrowd(map, 40);
   const glow = makeGlow();
+  const sky = new Sky(map.width, map.height);
   let sun = { day: '', sunrise: 0, sunset: 0 };
   let lastClockText = '';
 
@@ -158,19 +160,51 @@ function start(map: WorldMap): void {
     fit(map);
   });
 
-  // Drag to move, wheel or buttons to zoom.
-  let drag: { x: number; y: number; cameraX: number; cameraY: number } | null = null;
+  // One finger or the mouse drags. Two fingers pinch to zoom. Double-tap zooms in.
+  const pointers = new Map<number, { x: number; y: number }>();
+  let lastTap = 0;
+  const local = (event: PointerEvent) => {
+    const box = canvas.getBoundingClientRect();
+    return { x: event.clientX - box.left, y: event.clientY - box.top };
+  };
   canvas.addEventListener('pointerdown', (event) => {
-    drag = { x: event.clientX, y: event.clientY, cameraX: camera.x, cameraY: camera.y };
-    canvas.setPointerCapture(event.pointerId);
+    try {
+      canvas.setPointerCapture(event.pointerId);
+    } catch {
+      // Some browsers refuse capture for synthetic pointers; dragging still works without it.
+    }
+    pointers.set(event.pointerId, local(event));
+    if (pointers.size === 1) {
+      const now = performance.now();
+      if (now - lastTap < 300) zoomBy(1.8, local(event).x, local(event).y);
+      lastTap = now;
+    }
   });
   canvas.addEventListener('pointermove', (event) => {
-    if (!drag) return;
-    camera.x = drag.cameraX - (event.clientX - drag.x) / camera.zoom;
-    camera.y = drag.cameraY - (event.clientY - drag.y) / camera.zoom;
+    const before = pointers.get(event.pointerId);
+    if (!before) return;
+    const after = local(event);
+    if (pointers.size === 1) {
+      camera.x -= (after.x - before.x) / camera.zoom;
+      camera.y -= (after.y - before.y) / camera.zoom;
+    } else if (pointers.size === 2) {
+      const other = [...pointers.entries()].find(([id]) => id !== event.pointerId)![1];
+      const spreadBefore = Math.hypot(before.x - other.x, before.y - other.y);
+      const spreadAfter = Math.hypot(after.x - other.x, after.y - other.y);
+      const mid = { x: (after.x + other.x) / 2, y: (after.y + other.y) / 2 };
+      camera.x -= (after.x - before.x) / 2 / camera.zoom;
+      camera.y -= (after.y - before.y) / 2 / camera.zoom;
+      if (spreadBefore > 10) zoomBy(spreadAfter / spreadBefore, mid.x, mid.y);
+    }
+    pointers.set(event.pointerId, after);
   });
-  canvas.addEventListener('pointerup', () => (drag = null));
-  canvas.addEventListener('pointercancel', () => (drag = null));
+  const release = (event: PointerEvent) => pointers.delete(event.pointerId);
+  canvas.addEventListener('pointerup', release);
+  canvas.addEventListener('pointercancel', release);
+  window.addEventListener('keydown', (event) => {
+    if (event.key === '+' || event.key === '=') zoomBy(1.4);
+    if (event.key === '-' || event.key === '_') zoomBy(1 / 1.4);
+  });
   canvas.addEventListener(
     'wheel',
     (event) => {
@@ -198,6 +232,10 @@ function start(map: WorldMap): void {
     // At fast-forward speed, let the bubbles hurry too, so the day still makes sense.
     const steps = clock.speed === 1 ? 1 : 12;
     for (let i = 0; i < steps; i++) stepCrowd(map, crowd, dt, phase, owlsOut(london.minutes));
+    sky.cloudiness = cloudinessFor(london.day, london.minutes);
+    sky.step(dt, clock.speed === 1 ? 2.5 : 25);
+    // 1 when zoomed right out above the clouds, 0 when down among the streets.
+    const altitude = Math.max(0, Math.min(1, 1 - Math.log(camera.zoom / minZoom) / Math.log(4)));
 
     const asleep = crowd.filter((w) => w.asleep).length;
     const text = `London ${clockText(london.minutes)} · ${skyLabel(elevation, phase)} · Sunset ${clockText(sun.sunset)}${asleep ? ` · ${asleep} asleep` : ''}`;
@@ -216,6 +254,7 @@ function start(map: WorldMap): void {
     ctx.setTransform(k, 0, 0, k, (width / 2 - camera.x * camera.zoom) * ratio, (height / 2 - camera.y * camera.zoom) * ratio);
     ctx.drawImage(picture, 0, 0, picture.width / MAP_SCALE, picture.height / MAP_SCALE);
 
+    sky.drawShadows(ctx, 1 - dark);
     crowd.sort((a, b) => a.y - b.y);
     // Sleeping bubbles sit under the night sky. Awake ones are drawn on top, so they stay easy to follow.
     for (const walker of crowd) if (walker.asleep) drawWalker(walker);
@@ -226,7 +265,7 @@ function start(map: WorldMap): void {
       // Multiplying keeps colours rich: a warm wash at golden hour, deep blue at night.
       ctx.globalCompositeOperation = 'multiply';
       const mix = (day: number, night: number, warm: number) => Math.round((day + (night - day) * dark) * (1 - 0.25 * gold * (1 - warm)));
-      ctx.fillStyle = `rgb(${mix(255, 62, 1)}, ${mix(255, 70, 0.6)}, ${mix(255, 140, 0)})`;
+      ctx.fillStyle = `rgb(${mix(255, 14, 1)}, ${mix(255, 14, 0.6)}, ${mix(255, 22, 0)})`;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.restore();
     }
@@ -241,7 +280,7 @@ function start(map: WorldMap): void {
         const open = !late || place.kind === 'pub' || i % 5 === 0;
         if (!open) continue;
         const size = place.kind === 'theatre' ? 26 : 13;
-        ctx.globalAlpha = (dark - 0.3) * (late ? 0.7 : 1);
+        ctx.globalAlpha = Math.min(1, (dark - 0.3) * 1.4) * (late ? 0.75 : 1);
         ctx.drawImage(glow, place.x - size / 2, place.y - size / 2, size, size);
       }
       ctx.restore();
@@ -257,6 +296,7 @@ function start(map: WorldMap): void {
     }
 
     for (const walker of crowd) if (!walker.asleep) drawWalker(walker);
+    sky.draw(ctx, altitude, dark);
 
     requestAnimationFrame(frame);
   }

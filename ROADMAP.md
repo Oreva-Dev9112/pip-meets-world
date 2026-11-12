@@ -11,6 +11,8 @@ Seven stages. Each one ends with something you can open and look at. Hours are r
 - [x] Bubbles that pick somewhere to go and travel along streets
 - [x] A population of wild bubbles living on the map
 - [x] Day and night that follow real London time and the real sunset, with bubbles going out after dark and sleeping
+- [x] Drifting clouds, with clear and cloudy days, that you zoom down through
+- [x] Pinch and double-tap zoom on phones, buttons and keys on desktop
 
 ## 2. Characters (about 35 hours)
 
