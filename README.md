@@ -26,7 +26,9 @@ People who like watching small worlds run by themselves: virtual pets, ant farms
 
 | Path | What it is |
 | --- | --- |
-| `src/` | The start of the real game: a bubble whose bounce depends on its mood |
+| `src/` | The real game: bubbles bouncing along the streets of Soho, with a bounce that depends on mood |
+| `public/maps/` | Map files the game loads, built from OpenStreetMap data |
+| `tools/build_map.py` | Turns an OpenStreetMap export into a map file |
 | `prototype/` | A single-file sketch used to try the idea out, served at `/prototype/`. It will be replaced piece by piece. |
 | `docs/concept.md` | The game concept |
 | `ROADMAP.md` | The build plan |
@@ -54,4 +56,6 @@ TypeScript, Vite and the HTML canvas. No game engine and no backend yet.
 
 ## Licence
 
-[MIT](LICENSE)
+Code: [MIT](LICENSE).
+
+Map data © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright), available under the Open Database Licence.

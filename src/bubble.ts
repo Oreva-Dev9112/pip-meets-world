@@ -24,9 +24,12 @@ export function bounceSpeed(mood: number): number {
 /**
  * The bounce depends on mood: happy bubbles bounce high and springy,
  * calm ones low and slow, and sad ones barely leave the ground.
+ * A bubble that is standing still only bobs gently.
+ * Heights are in the same units as the bubble's radius, scaled for a radius of about 22.
  */
-export function hop(bubble: Bubble): Hop {
+export function hop(bubble: Bubble, moving = true): Hop {
   const cycle = Math.abs(Math.sin(bubble.bouncePhase));
+  if (!moving) return { height: cycle * (1.5 + (bubble.mood + 1) * 1.5), squash: 0 };
   const sad = bubble.mood < -0.3;
   const peak = sad ? 2.5 : 7 + (bubble.mood + 1) * 7;
   const landing = Math.max(0, 1 - cycle * 3.2);

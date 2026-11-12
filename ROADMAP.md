@@ -7,9 +7,9 @@ Seven stages. Each one ends with something you can open and look at. Hours are r
 - [x] Project setup
 - [x] A bubble whose bounce depends on its mood
 - [ ] Bubble module with tests
-- [ ] A map to move around on, starting with a simple sketch of Soho
-- [ ] Bubbles that pick somewhere to go and travel along streets
-- [ ] A population of wild bubbles living on the map
+- [x] A real map of Soho from OpenStreetMap, with a converter for other areas
+- [x] Bubbles that pick somewhere to go and travel along streets
+- [x] A population of wild bubbles living on the map
 - [ ] Day and night, with bubbles sleeping
 
 ## 2. Characters (about 35 hours)
@@ -50,7 +50,6 @@ Seven stages. Each one ends with something you can open and look at. Hours are r
 
 ## 7. More areas (about 40 hours)
 
-- [ ] Real street data for Soho from OpenStreetMap
 - [ ] Chinatown and Covent Garden, unlocking as Soho is explored
 - [ ] Bubbles travelling between areas through stations
 

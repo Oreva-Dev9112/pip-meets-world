@@ -5,20 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Pip Meets World</title>
     <style>
-      html, body { height: 100%; margin: 0; background: #f6f3fa; }
-      canvas { display: block; width: 100%; height: 100%; }
-      .note { position: fixed; left: 16px; top: 16px; right: 16px; font: 16px/1.4 system-ui, sans-serif; color: #2b2140; }
-      .note h1 { margin: 0 0 4px; font-size: 24px; }
-      .note p { margin: 0; max-width: 46ch; }
-      .note a { color: #2b2140; font-weight: 700; }
+      html, body { height: 100%; margin: 0; background: #e9edf3; color: #2b2140; font: 15px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; }
+      canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
+      .card { position: fixed; background: #fff; border: 2px solid #2b2140; border-radius: 14px; box-shadow: 0 4px 0 #2b2140; padding: 10px 14px; }
+      .about { left: 12px; top: 12px; max-width: min(340px, calc(100% - 24px)); }
+      .about h1 { margin: 0; font-size: 22px; line-height: 1.1; }
+      .about p { margin: 4px 0 0; }
+      a { color: #2b2140; font-weight: 700; }
+      .zoom { right: 12px; top: 12px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
+      button { width: 44px; height: 44px; font: 700 22px/1 system-ui, sans-serif; color: #2b2140; background: #fff; border: 2px solid #2b2140; border-radius: 10px; cursor: pointer; }
+      button:hover { background: #f3f0f8; }
+      button:focus-visible, a:focus-visible { outline: 3px solid #ffb703; outline-offset: 2px; }
+      .legend { left: 12px; bottom: 12px; display: flex; flex-wrap: wrap; gap: 4px 12px; max-width: calc(100% - 24px); font-size: 13px; padding: 8px 12px; }
+      .legend span { display: inline-flex; align-items: center; gap: 5px; }
+      .legend i { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid #2b2140; }
+      .credit { position: fixed; right: 12px; bottom: 12px; font-size: 12px; background: rgba(255, 255, 255, 0.85); border-radius: 8px; padding: 3px 8px; }
+      @media (max-width: 700px) { .credit { bottom: auto; top: 124px; right: 12px; } .about h1 { font-size: 19px; } }
     </style>
   </head>
   <body>
-    <canvas id="stage" aria-label="Three bubbles bouncing across the screen, each in a different mood"></canvas>
-    <div class="note">
+    <canvas id="stage" aria-label="A map of Soho in London with bubbles bouncing along its streets"></canvas>
+    <div class="card about">
       <h1>Pip Meets World</h1>
-      <p>The real game starts here: three bubbles, three moods, three bounces. <a href="/prototype/">Play the full prototype sketch</a></p>
+      <p id="status">Loading the map…</p>
+      <p>Drag to look around. <a href="./prototype/">Play the prototype sketch</a></p>
     </div>
+    <div class="card zoom">
+      <button id="zoom-in" type="button" aria-label="Zoom in">+</button>
+      <button id="zoom-out" type="button" aria-label="Zoom out">−</button>
+    </div>
+    <div class="card legend" aria-label="Map key">
+      <span><i style="background: #ff9f6b"></i>café</span>
+      <span><i style="background: #f2c94c"></i>pub or bar</span>
+      <span><i style="background: #ff7a7a"></i>food</span>
+      <span><i style="background: #ff6fb5"></i>theatre or cinema</span>
+      <span><i style="background: #b79bff"></i>treats</span>
+      <span><i style="background: #d9a05b"></i>bakery</span>
+      <span><i style="background: #6c8cff"></i>records</span>
+      <span><i style="background: #4fb0a5"></i>books</span>
+    </div>
+    <div class="credit">Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
