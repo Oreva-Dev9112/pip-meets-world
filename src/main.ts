@@ -2,7 +2,8 @@ import { hop } from './bubble';
 import { isMoving, makeCrowd, stepCrowd, type Walker } from './world/crowd';
 import { loadMap, type WorldMap } from './world/map';
 import { cloudinessFor, Sky } from './world/clouds';
-import { INK, MAP_SCALE, PLACE_COLOURS, paintMap } from './world/paint';
+import { INK, PLACE_COLOURS } from './world/paint';
+import { paintToon, TOON_SCALE } from './world/toon';
 import { clockText, darkness, goldenness, londonTime, owlsOut, phaseAt, skyLabel, sunElevation, sunTimes } from './world/sky';
 
 const canvas = document.getElementById('stage') as HTMLCanvasElement;
@@ -22,7 +23,7 @@ let ratio = 1;
 /** Where the camera is looking, in metres, and how many screen pixels one metre takes. */
 const camera = { x: 0, y: 0, zoom: 1 };
 let minZoom = 0.5;
-const MAX_ZOOM = 7;
+const MAX_ZOOM = 14;
 
 function resize(): void {
   ratio = Math.min(2, window.devicePixelRatio || 1);
@@ -45,9 +46,10 @@ function zoomBy(factor: number, screenX = width / 2, screenY = height / 2): void
 }
 
 function drawWalker(walker: Walker): void {
-  // Keep bubbles easy to see when the whole map is on screen.
-  const r = Math.max(walker.radius, 8 / camera.zoom);
+  // Bubbles are tiny, a speck in the crowd from above. Faces appear when you are close.
+  const r = Math.max(walker.radius, 2.2 / camera.zoom);
   const scale = r / 22;
+  const close = r * camera.zoom > 9;
   const { height: lift, squash } = hop(walker, isMoving(walker));
   const up = lift * scale;
 
@@ -77,6 +79,10 @@ function drawWalker(walker: Walker): void {
   ctx.stroke();
 
   ctx.globalAlpha = 1;
+  if (!close) {
+    ctx.restore();
+    return;
+  }
   const look = walker.asleep ? 0 : walker.facing * r * 0.14;
   ctx.fillStyle = INK;
   if (walker.asleep) {
@@ -107,7 +113,7 @@ function drawWalker(walker: Walker): void {
   ctx.stroke();
   ctx.restore();
 
-  if (walker.asleep) {
+  if (walker.asleep && close) {
     const drift = (performance.now() / 2000 + walker.home * 0.37) % 1;
     ctx.globalAlpha = 1 - drift;
     ctx.fillStyle = '#ffffff';
@@ -132,8 +138,8 @@ function makeGlow(): HTMLCanvasElement {
 }
 
 function start(map: WorldMap): void {
-  const picture = paintMap(map);
-  const crowd = makeCrowd(map, 40);
+  const picture = paintToon(map);
+  const crowd = makeCrowd(map, 160);
   const glow = makeGlow();
   const sky = new Sky(map.width, map.height);
   let sun = { day: '', sunrise: 0, sunset: 0 };
@@ -252,7 +258,7 @@ function start(map: WorldMap): void {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     const k = ratio * camera.zoom;
     ctx.setTransform(k, 0, 0, k, (width / 2 - camera.x * camera.zoom) * ratio, (height / 2 - camera.y * camera.zoom) * ratio);
-    ctx.drawImage(picture, 0, 0, picture.width / MAP_SCALE, picture.height / MAP_SCALE);
+    ctx.drawImage(picture, 0, 0, picture.width / TOON_SCALE, picture.height / TOON_SCALE);
 
     sky.drawShadows(ctx, 1 - dark);
     crowd.sort((a, b) => a.y - b.y);

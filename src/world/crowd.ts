@@ -33,7 +33,7 @@ export function makeCrowd(map: WorldMap, count: number): Walker[] {
     crowd.push({
       x: map.nodes[at].x,
       y: map.nodes[at].y,
-      radius: 4.5,
+      radius: 1.2,
       colour: COLOURS[i % COLOURS.length],
       mood: Math.random() * 1.8 - 0.9,
       bouncePhase: Math.random() * 6,
