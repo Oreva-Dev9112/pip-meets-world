@@ -265,7 +265,10 @@ function start(map: WorldMap): void {
       // Multiplying keeps colours rich: a warm wash at golden hour, deep blue at night.
       ctx.globalCompositeOperation = 'multiply';
       const mix = (day: number, night: number, warm: number) => Math.round((day + (night - day) * dark) * (1 - 0.25 * gold * (1 - warm)));
-      ctx.fillStyle = `rgb(${mix(255, 14, 1)}, ${mix(255, 14, 0.6)}, ${mix(255, 22, 0)})`;
+      // From high up, night is near-black and only the lights show. Down at
+      // street level your eyes adjust, so buildings and streets come through.
+      const close = 1 - altitude;
+      ctx.fillStyle = `rgb(${mix(255, 14 + 50 * close, 1)}, ${mix(255, 14 + 52 * close, 0.6)}, ${mix(255, 22 + 78 * close, 0)})`;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.restore();
     }
