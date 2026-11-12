@@ -25,7 +25,7 @@ People who like watching small worlds run by themselves: virtual pets, ant farms
 | Path | What it is |
 | --- | --- |
 | `src/` | The start of the real game: a bubble whose bounce depends on its mood |
-| `prototype/` | A single-file sketch used to try the idea out. Open `prototype/index.html` in a browser. It will be replaced piece by piece. |
+| `prototype/` | A single-file sketch used to try the idea out, served at `/prototype/`. It will be replaced piece by piece. |
 | `docs/concept.md` | The game concept |
 | `ROADMAP.md` | The build plan |
 

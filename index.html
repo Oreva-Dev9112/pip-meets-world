@@ -7,10 +7,18 @@
     <style>
       html, body { height: 100%; margin: 0; background: #f6f3fa; }
       canvas { display: block; width: 100%; height: 100%; }
+      .note { position: fixed; left: 16px; top: 16px; right: 16px; font: 16px/1.4 system-ui, sans-serif; color: #2b2140; }
+      .note h1 { margin: 0 0 4px; font-size: 24px; }
+      .note p { margin: 0; max-width: 46ch; }
+      .note a { color: #2b2140; font-weight: 700; }
     </style>
   </head>
   <body>
-    <canvas id="stage" aria-label="A bubble bouncing along a street"></canvas>
+    <canvas id="stage" aria-label="Three bubbles bouncing across the screen, each in a different mood"></canvas>
+    <div class="note">
+      <h1>Pip Meets World</h1>
+      <p>The real game starts here: three bubbles, three moods, three bounces. <a href="/prototype/">Play the full prototype sketch</a></p>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
