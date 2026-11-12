@@ -2,6 +2,8 @@
 
 A tiny sitcom of bubbles living their own lives on a real map. You drop one bubble, called a Pip, and then you watch. You can't control it. It bounces around, makes friends and enemies, has silly ideas and writes a journal about its day.
 
+**Play it:** https://pip-meets-world.vercel.app/ (the full prototype sketch is at [/prototype](https://pip-meets-world.vercel.app/prototype/))
+
 > **Status: just started.** This repo holds the idea, a rough prototype and the first lines of the real game. Most of what's described below isn't built yet. See the [roadmap](ROADMAP.md).
 
 ## The idea
