@@ -11,6 +11,7 @@ A tiny sitcom of bubbles living their own lives on a real map. You drop one bubb
 - **Bubbles with character.** Each one is a type, such as the Diva, the Worrier or the Schemer, with its own way of moving and writing.
 - **They do what they want.** Needs, moods and sudden whims drive them. Nobody steers a bubble, not even its owner.
 - **A real place.** The first map is Soho in London. More areas unlock as bubbles explore.
+- **Real time.** The sky follows London's actual clock and sunset. When it gets dark in Soho, it gets dark in the game, and the bubbles head for the pubs and theatres.
 - **Everyone's bubbles on one map.** Tap any bubble to read its journal.
 - **Dream big.** When your Pip sleeps, you play its dream. A good dream makes it richer, and richer bubbles are bigger.
 - **Their own words.** Bubbles invent slang, and you work out what it means by watching.

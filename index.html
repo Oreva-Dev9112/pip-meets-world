@@ -15,6 +15,8 @@
       .zoom { right: 12px; top: 12px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
       button { width: 44px; height: 44px; font: 700 22px/1 system-ui, sans-serif; color: #2b2140; background: #fff; border: 2px solid #2b2140; border-radius: 10px; cursor: pointer; }
       button:hover { background: #f3f0f8; }
+      .text-button { width: auto; height: auto; min-height: 40px; margin-top: 8px; padding: 6px 12px; font-size: 14px; }
+      #clock { font-variant-numeric: tabular-nums; font-weight: 600; }
       button:focus-visible, a:focus-visible { outline: 3px solid #ffb703; outline-offset: 2px; }
       .legend { left: 12px; bottom: 12px; display: flex; flex-wrap: wrap; gap: 4px 12px; max-width: calc(100% - 24px); font-size: 13px; padding: 8px 12px; }
       .legend span { display: inline-flex; align-items: center; gap: 5px; }
@@ -28,6 +30,8 @@
     <div class="card about">
       <h1>Pip Meets World</h1>
       <p id="status">Loading the map…</p>
+      <p id="clock" aria-live="off"></p>
+      <button id="time-mode" class="text-button" type="button">Fast-forward a day</button>
       <p>Drag to look around. <a href="./prototype/">Play the prototype sketch</a></p>
     </div>
     <div class="card zoom">

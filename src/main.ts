@@ -1,11 +1,18 @@
 import { hop } from './bubble';
 import { isMoving, makeCrowd, stepCrowd, type Walker } from './world/crowd';
 import { loadMap, type WorldMap } from './world/map';
-import { INK, MAP_SCALE, paintMap } from './world/paint';
+import { INK, MAP_SCALE, PLACE_COLOURS, paintMap } from './world/paint';
+import { clockText, darkness, goldenness, londonTime, owlsOut, phaseAt, skyLabel, sunElevation, sunTimes } from './world/sky';
 
 const canvas = document.getElementById('stage') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d')!;
 const status = document.getElementById('status')!;
+const clockLine = document.getElementById('clock')!;
+const timeButton = document.getElementById('time-mode') as HTMLButtonElement;
+
+/** Live follows the real London clock. Fast-forward runs a whole day in two minutes. */
+const clock = { time: new Date(), speed: 1 };
+const FAST = 720;
 
 let width = 0;
 let height = 0;
@@ -54,6 +61,7 @@ function drawWalker(walker: Walker): void {
 
   ctx.fillStyle = walker.colour;
   ctx.strokeStyle = INK;
+  if (walker.asleep) ctx.globalAlpha = 0.85;
   ctx.lineWidth = r * 0.13;
   ctx.beginPath();
   ctx.arc(0, 0, r, 0, Math.PI * 2);
@@ -67,17 +75,29 @@ function drawWalker(walker: Walker): void {
   ctx.arc(0, 0, r * 0.68, -2.4, -1.6);
   ctx.stroke();
 
-  const look = walker.facing * r * 0.14;
+  ctx.globalAlpha = 1;
+  const look = walker.asleep ? 0 : walker.facing * r * 0.14;
   ctx.fillStyle = INK;
-  ctx.beginPath();
-  ctx.ellipse(look - r * 0.28, -r * 0.08, r * 0.1, r * 0.16, 0, 0, Math.PI * 2);
-  ctx.ellipse(look + r * 0.28, -r * 0.08, r * 0.1, r * 0.16, 0, 0, Math.PI * 2);
-  ctx.fill();
+  if (walker.asleep) {
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = r * 0.1;
+    ctx.beginPath();
+    ctx.arc(-r * 0.28, -r * 0.12, r * 0.12, 0.2, Math.PI - 0.2);
+    ctx.moveTo(r * 0.4, -r * 0.08);
+    ctx.arc(r * 0.28, -r * 0.12, r * 0.12, 0.2, Math.PI - 0.2);
+    ctx.stroke();
+  } else {
+    ctx.beginPath();
+    ctx.ellipse(look - r * 0.28, -r * 0.08, r * 0.1, r * 0.16, 0, 0, Math.PI * 2);
+    ctx.ellipse(look + r * 0.28, -r * 0.08, r * 0.1, r * 0.16, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
   ctx.strokeStyle = INK;
   ctx.lineWidth = r * 0.11;
   ctx.beginPath();
-  if (walker.mood > 0.15) ctx.arc(look, r * 0.14, r * 0.2, 0.2, Math.PI - 0.2);
+  if (walker.asleep) ctx.arc(0, r * 0.32, r * 0.08, 0, Math.PI * 2);
+  else if (walker.mood > 0.15) ctx.arc(look, r * 0.14, r * 0.2, 0.2, Math.PI - 0.2);
   else if (walker.mood < -0.15) ctx.arc(look, r * 0.44, r * 0.18, Math.PI + 0.3, -0.3);
   else {
     ctx.moveTo(look - r * 0.14, r * 0.28);
@@ -85,11 +105,48 @@ function drawWalker(walker: Walker): void {
   }
   ctx.stroke();
   ctx.restore();
+
+  if (walker.asleep) {
+    const drift = (performance.now() / 2000 + walker.home * 0.37) % 1;
+    ctx.globalAlpha = 1 - drift;
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `800 ${r * 0.9}px system-ui, sans-serif`;
+    ctx.fillText('z', walker.x + r * (0.9 + drift * 0.6), walker.y - r * (1 + drift * 1.4));
+    ctx.globalAlpha = 1;
+  }
+}
+
+/** A soft warm light, drawn once and reused for every lit window. */
+function makeGlow(): HTMLCanvasElement {
+  const glow = document.createElement('canvas');
+  glow.width = glow.height = 64;
+  const g = glow.getContext('2d')!;
+  const gradient = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gradient.addColorStop(0, 'rgba(255, 214, 140, 0.95)');
+  gradient.addColorStop(0.35, 'rgba(255, 190, 110, 0.4)');
+  gradient.addColorStop(1, 'rgba(255, 170, 90, 0)');
+  g.fillStyle = gradient;
+  g.fillRect(0, 0, 64, 64);
+  return glow;
 }
 
 function start(map: WorldMap): void {
   const picture = paintMap(map);
   const crowd = makeCrowd(map, 40);
+  const glow = makeGlow();
+  let sun = { day: '', sunrise: 0, sunset: 0 };
+  let lastClockText = '';
+
+  timeButton.addEventListener('click', () => {
+    if (clock.speed === 1) {
+      clock.speed = FAST;
+      timeButton.textContent = 'Back to live time';
+    } else {
+      clock.speed = 1;
+      clock.time = new Date();
+      timeButton.textContent = 'Fast-forward a day';
+    }
+  });
   camera.x = map.width / 2;
   camera.y = map.height / 2;
   fit(map);
@@ -130,7 +187,24 @@ function start(map: WorldMap): void {
   function frame(now: number): void {
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
-    stepCrowd(map, crowd, dt);
+    clock.time = clock.speed === 1 ? new Date() : new Date(clock.time.getTime() + dt * 1000 * clock.speed);
+    const london = londonTime(clock.time);
+    if (london.day !== sun.day) sun = { day: london.day, ...sunTimes(clock.time) };
+    const elevation = sunElevation(clock.time);
+    const phase = phaseAt(london.minutes, elevation);
+    const dark = darkness(elevation);
+    const gold = goldenness(elevation);
+
+    // At fast-forward speed, let the bubbles hurry too, so the day still makes sense.
+    const steps = clock.speed === 1 ? 1 : 12;
+    for (let i = 0; i < steps; i++) stepCrowd(map, crowd, dt, phase, owlsOut(london.minutes));
+
+    const asleep = crowd.filter((w) => w.asleep).length;
+    const text = `London ${clockText(london.minutes)} · ${skyLabel(elevation, phase)} · Sunset ${clockText(sun.sunset)}${asleep ? ` · ${asleep} asleep` : ''}`;
+    if (text !== lastClockText) {
+      clockLine.textContent = text;
+      lastClockText = text;
+    }
 
     camera.x = Math.max(0, Math.min(map.width, camera.x));
     camera.y = Math.max(0, Math.min(map.height, camera.y));
@@ -143,7 +217,46 @@ function start(map: WorldMap): void {
     ctx.drawImage(picture, 0, 0, picture.width / MAP_SCALE, picture.height / MAP_SCALE);
 
     crowd.sort((a, b) => a.y - b.y);
-    for (const walker of crowd) drawWalker(walker);
+    // Sleeping bubbles sit under the night sky. Awake ones are drawn on top, so they stay easy to follow.
+    for (const walker of crowd) if (walker.asleep) drawWalker(walker);
+
+    if (dark > 0 || gold > 0) {
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      // Multiplying keeps colours rich: a warm wash at golden hour, deep blue at night.
+      ctx.globalCompositeOperation = 'multiply';
+      const mix = (day: number, night: number, warm: number) => Math.round((day + (night - day) * dark) * (1 - 0.25 * gold * (1 - warm)));
+      ctx.fillStyle = `rgb(${mix(255, 62, 1)}, ${mix(255, 70, 0.6)}, ${mix(255, 140, 0)})`;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.restore();
+    }
+
+    if (dark > 0.3) {
+      // Cafes, pubs and theatres light up after dark.
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      const late = phase === 'night';
+      for (let i = 0; i < map.places.length; i++) {
+        const place = map.places[i];
+        const open = !late || place.kind === 'pub' || i % 5 === 0;
+        if (!open) continue;
+        const size = place.kind === 'theatre' ? 26 : 13;
+        ctx.globalAlpha = (dark - 0.3) * (late ? 0.7 : 1);
+        ctx.drawImage(glow, place.x - size / 2, place.y - size / 2, size, size);
+      }
+      ctx.restore();
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, (dark - 0.3) * 1.6);
+      for (const place of map.places) {
+        ctx.fillStyle = PLACE_COLOURS[place.kind] ?? '#ffffff';
+        ctx.beginPath();
+        ctx.arc(place.x, place.y, 1.6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    for (const walker of crowd) if (!walker.asleep) drawWalker(walker);
 
     requestAnimationFrame(frame);
   }

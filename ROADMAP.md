@@ -10,7 +10,7 @@ Seven stages. Each one ends with something you can open and look at. Hours are r
 - [x] A real map of Soho from OpenStreetMap, with a converter for other areas
 - [x] Bubbles that pick somewhere to go and travel along streets
 - [x] A population of wild bubbles living on the map
-- [ ] Day and night, with bubbles sleeping
+- [x] Day and night that follow real London time and the real sunset, with bubbles going out after dark and sleeping
 
 ## 2. Characters (about 35 hours)
 
