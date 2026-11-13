@@ -5,6 +5,7 @@ import { COURSE_INTRO } from './lines';
 import { Dream } from './dream';
 import { Fog } from './fog';
 import { H, W, addLand, makeTrail, northShore, paintTerrain, raiseLand } from './island';
+import { setIcon } from './icons';
 import { Journal } from './journal';
 import { drawPlace, findHome, makePlaces, type Place } from './places';
 import { Sky, cloudinessFor, darkness, goldenness, makeGlow } from './sky';
@@ -45,7 +46,8 @@ let vw = 800, vh = 600, dpr = 1;
  * The camera follows your dot unless you drag it away. `zoom` multiplies the
  * "cover" scale, where the island just fills the view.
  */
-const cam: { x: number; y: number; zoom: number; free: boolean; focus: { x: number; y: number; t: number } | null } = { x: home.x, y: home.y, zoom: 1, free: false, focus: null };
+// It starts in close on your dot, so you meet the dots before the map.
+const cam: { x: number; y: number; zoom: number; free: boolean; focus: { x: number; y: number; t: number } | null } = { x: home.x, y: home.y, zoom: window.matchMedia('(max-width: 760px)').matches ? 1.25 : 1.8, free: false, focus: null };
 let cover = 1, fit = 1;
 const MAX_ZOOM = 3;
 const scale = () => cover * cam.zoom;
@@ -58,7 +60,7 @@ function focusPlace(p: Spot): void {
 
 const journal: Journal = new Journal($('entries'), $<HTMLButtonElement>('chip'), {
   placeName: (id) => placeById(id).name,
-  showPlace: (id) => focusPlace(placeById(id)),
+  showPlace: (id) => { drawer(false); focusPlace(placeById(id)); },
   dotName: (id): string => callName(story.dotById(id)!),
 });
 const voice = new Voice();
@@ -79,8 +81,9 @@ function updateHud(): void {
   $('hudFound').textContent = places.filter((p) => p.found).length + ' of ' + places.length + ' places found' + (n ? ', ' + n + (n === 1 ? ' keepsake' : ' keepsakes') : '');
   $('hudTown').hidden = !town.open;
   if (town.open) $('hudTown').textContent = (story.townVisited ? 'Town ' + Math.round(town.explored(fog) * 100) + '% explored, ' : 'A causeway to the north, ') + pip.coins + ' coins';
+  const dreamLabel = 'Watch ' + (pip.named ? 'Pip' : 'it') + ' dream';
+  if ($('btnDream').title !== dreamLabel) setIcon($('btnDream'), 'moon', dreamLabel, dreamLabel);
   $('btnDream').hidden = !story.canDream;
-  $('btnDream').textContent = 'Watch ' + (pip.named ? 'Pip' : 'it') + ' dream';
   $('btnBounce').hidden = !story.tower || pip.asleep;
   $('btnFind').hidden = !cam.free;
   $<HTMLButtonElement>('btnRain').disabled = story.rain > 0;
@@ -106,6 +109,7 @@ $('tabW').addEventListener('click', () => setTab('words'));
 /** Opens a townsfolk's own journal in the notebook. */
 function openDiary(d: Dot): void {
   viewing = d;
+  drawer(true);
   $('entries').hidden = true;
   $('words').hidden = true;
   $('diary').hidden = false;
@@ -124,6 +128,15 @@ function closeDiary(): void {
   updateHud();
 }
 $('back').addEventListener('click', closeDiary);
+
+/** On phones the journal is a drawer: just its newest line until you pull it up. */
+function drawer(open: boolean): void {
+  $('journal').classList.toggle('open', open);
+  $('handle').setAttribute('aria-expanded', String(open));
+  $('handle').setAttribute('aria-label', open ? 'Close the journal' : 'Open the journal');
+}
+$('handle').addEventListener('click', () => drawer(!$('journal').classList.contains('open')));
+$('jTitle').addEventListener('click', () => drawer(!$('journal').classList.contains('open')));
 
 function renderDiary(): void {
   const d = viewing!, list = $('diary'), wealth = d.coins! < 20 ? 'broke' : d.coins! < 80 ? 'getting by' : d.coins! < 200 ? 'rich' : 'very, very rich';
@@ -268,6 +281,9 @@ const release = (e: PointerEvent) => {
   const wasTap = pointers.size === 1 && !dragged && pressStart;
   pointers.delete(e.pointerId);
   if (!wasTap) return;
+  // Tapping the map tucks the journal away and puts the tip away for good.
+  hideTip();
+  drawer(false);
   const p = local(e), now = performance.now();
   if (now - lastTap < 300) { zoomBy(1.6, p.x, p.y); lastTap = 0; }
   else {
@@ -297,6 +313,9 @@ window.addEventListener('keydown', (e) => {
   if (e.key === '+' || e.key === '=') zoomBy(1.4);
   if (e.key === '-' || e.key === '_') zoomBy(1 / 1.4);
 });
+setIcon($('zoomIn'), 'plus', 'Zoom in (+)');
+setIcon($('zoomOut'), 'minus', 'Zoom out (−)');
+setIcon($('btnFind'), 'find', 'Find Pip');
 $('zoomIn').addEventListener('click', () => zoomBy(1.4));
 $('zoomOut').addEventListener('click', () => zoomBy(1 / 1.4));
 $('btnFind').addEventListener('click', () => { cam.free = false; cam.focus = null; updateHud(); });
@@ -408,24 +427,52 @@ const toybox = $('toybox');
 for (const kind of TOY_KINDS) {
   const b = document.createElement('button');
   b.type = 'button';
-  b.textContent = TOY_LABELS[kind];
-  b.setAttribute('aria-pressed', String(kind === chosen));
+  b.setAttribute('role', 'radio');
+  const name = TOY_LABELS[kind].toLowerCase();
+  setIcon(b, kind, (/^[aeiou]/.test(name) ? 'Leave an ' : 'Leave a ') + name);
+  b.setAttribute('aria-checked', String(kind === chosen));
   b.addEventListener('click', () => {
     chosen = kind;
-    toybox.querySelectorAll('button[aria-pressed]').forEach((o) => o.setAttribute('aria-pressed', String(o === b)));
+    toybox.querySelectorAll('button').forEach((o) => o.setAttribute('aria-checked', String(o === b)));
   });
   toybox.appendChild(b);
 }
+setIcon($('btnRain'), 'rain', 'Make it rain');
+setIcon($('btnWind'), 'wind', 'Make it windy');
 $('btnRain').addEventListener('click', () => { story.makeRain(); updateHud(); });
 $('btnWind').addEventListener('click', () => { story.makeWind(); updateHud(); });
 
 // ---------- Controls ----------
-const soundLabel = () => { $('btnSound').textContent = voice.on ? 'Sound: on' : 'Sound: off'; };
+const soundLabel = () => setIcon($('btnSound'), voice.on ? 'soundOn' : 'soundOff', voice.on ? 'Sound on (tap to turn off)' : 'Sound off (tap to turn on)');
 soundLabel();
 $('btnSound').addEventListener('click', () => { voice.toggle(); soundLabel(); });
 let playing = true, speed = 1;
-$('btnPlay').addEventListener('click', () => { playing = !playing; $('btnPlay').textContent = playing ? 'Pause' : 'Play'; });
-$('btnSpeed').addEventListener('click', () => { speed = speed === 1 ? 4 : 1; $('btnSpeed').textContent = 'Speed: ' + speed + '×'; });
+const playLabel = () => setIcon($('btnPlay'), playing ? 'pause' : 'play', playing ? 'Pause' : 'Play');
+playLabel();
+$('btnPlay').addEventListener('click', () => { playing = !playing; playLabel(); });
+$('btnSpeed').title = 'Speed up';
+$('btnSpeed').setAttribute('aria-label', 'Speed: 1×');
+$('btnSpeed').addEventListener('click', () => { speed = speed === 1 ? 4 : 1; $('btnSpeed').textContent = speed + '×'; $('btnSpeed').setAttribute('aria-label', 'Speed: ' + speed + '×'); });
+setIcon($('btnSkip'), 'tomorrow', 'Come back tomorrow', 'Tomorrow');
+
+// On phones the time controls sit in the corner, so the tray fits on one line.
+const narrow = window.matchMedia('(max-width: 760px)');
+const placeTime = () => (narrow.matches ? document.querySelector('.corner')! : document.querySelector('.bar')!).appendChild($('timeGroup'));
+placeTime();
+narrow.addEventListener('change', placeTime);
+setIcon($('btnBounce'), 'tower', 'Bounce up the tower', 'Bounce up the tower');
+
+// A friendly tip on the first visit, until you tap the map or say "got it".
+let tipShown = false;
+try { tipShown = localStorage.getItem('pip-tip') === 'seen'; } catch { /* show it */ }
+function hideTip(): void {
+  if ($('tip').hidden || $('tip').classList.contains('fade')) return;
+  $('tip').classList.add('fade');
+  setTimeout(() => { $('tip').hidden = true; }, 400);
+  try { localStorage.setItem('pip-tip', 'seen'); } catch { /* fine */ }
+}
+if (!tipShown) { $('tip').hidden = false; setTimeout(hideTip, 15000); }
+$('tipClose').addEventListener('click', hideTip);
 $('btnSkip').addEventListener('click', () => { story.skipToTomorrow(); cam.x = pip.x; cam.y = pip.y; cam.free = false; updateHud(); });
 
 const dream = new Dream($('dreamWrap'), $<HTMLCanvasElement>('dream'), {

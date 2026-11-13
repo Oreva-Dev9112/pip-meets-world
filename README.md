@@ -34,11 +34,12 @@ The full write-up is in [docs/concept.md](docs/concept.md).
 | Look around | Drag, scroll to zoom, double-click to zoom in | Drag, pinch, double-tap |
 | Poke a dot | Click it | Tap it |
 | Play a dot's bounce course | Click its "Play?" bubble after poking it | Tap its "Play?" bubble |
-| Leave a toy | Pick one in "Leave a…", then click the map | The same, with a tap |
+| Leave a toy | Pick one in the tray at the bottom, then click the map | The same, with a tap |
+| Read the journal | It sits beside the map | Pull up the drawer at the bottom |
 | Watch a dot | Zoom in on it, or rest the mouse on it | Zoom in on it |
 | Bounce | ← → or A and D to roll, space or ↑ to jump (hold for higher) | The ◀ ▶ and Jump buttons |
 
-Sound starts after your first click or tap, as browsers require. The Sound button turns it off.
+Sound starts after your first click or tap, as browsers require. The speaker button in the corner turns it off.
 
 ## Who it's for
 
@@ -67,6 +68,7 @@ People who like watching small worlds run by themselves: virtual pets, ant farms
 | `src/story.ts` | What happens: choosing where to go, finding places, meeting, days and nights |
 | `src/lines.ts` | Everything the dot writes |
 | `src/journal.ts` | The notebook beside the map |
+| `src/icons.ts` | The hand-drawn icons for the toy tray and controls |
 | `src/random.ts` | Seeded randomness, so the island is the same every time |
 
 ## Running it

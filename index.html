@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pip Meets World</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='27' rx='12' ry='4' fill='none' stroke='%23F2A93B' stroke-width='3'/%3E%3Ccircle cx='16' cy='15' r='11' fill='%23F7D774' stroke='%231F3340' stroke-width='2.5'/%3E%3Cellipse cx='13' cy='14' rx='1.6' ry='2.4' fill='%231F3340'/%3E%3Cellipse cx='19' cy='14' rx='1.6' ry='2.4' fill='%231F3340'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
@@ -30,23 +31,43 @@
   .hud .name { font-family: var(--hand); font-weight: 700; font-size: 30px; line-height: 1; display: flex; align-items: center; gap: 8px; }
   .hud .ring { width: 16px; height: 16px; border-radius: 50%; background: #F7D774; border: 3px solid var(--gold); flex: none; }
   .hud .when, .hud .found { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
-  .bottom { position: absolute; left: 16px; right: 72px; bottom: 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; pointer-events: none; }
-  .bottom > * { pointer-events: auto; max-width: 100%; }
-  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
   button { font: 600 15px var(--ui); color: var(--ink); background: var(--page); border: 2px solid var(--ink); border-radius: 12px; min-height: 44px; padding: 8px 14px; cursor: pointer; }
   button:hover { background: #fff; }
   button:focus-visible, .link:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
   button.main { background: var(--gold); }
   button.main:hover { background: #F7BC5C; }
-  .zoom { position: absolute; right: 16px; top: 16px; display: flex; flex-direction: column; gap: 8px; }
-  .zoom button { width: 44px; padding: 0; font-size: 22px; }
   button[hidden] { display: none; }
+  button svg { display: block; flex: none; }
+
+  /* Zoom, find and sound: a column of round buttons in the corner. */
+  .corner { position: absolute; right: 16px; top: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .round { width: 44px; height: 44px; padding: 0; border-radius: 50%; display: grid; place-items: center; }
+
+  /* The dock: one tray of toys, weather and time, with special moments above it. */
+  .dock { position: absolute; left: 0; right: 0; bottom: 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 0 16px; pointer-events: none; }
+  .dock > * { pointer-events: auto; max-width: 100%; }
+  .special { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .special:not(:has(button:not([hidden]))) { display: none; }
+  .pill { display: inline-flex; align-items: center; gap: 8px; border-radius: 22px; padding: 6px 16px 6px 10px; box-shadow: 0 3px 0 var(--ink); animation: bob 2.4s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(-3px); } }
+  .bar { display: flex; align-items: center; gap: 4px; background: var(--page); border: 2px solid var(--ink); border-radius: 28px; padding: 5px 8px; box-shadow: 0 3px 0 var(--ink); overflow-x: auto; scrollbar-width: none; }
+  .bar::-webkit-scrollbar { display: none; }
+  .group { display: flex; gap: 2px; flex: none; }
+  .sep { width: 2px; align-self: stretch; margin: 6px 6px; background: var(--rule); border-radius: 1px; flex: none; }
+  .icon, .tray button { flex: none; width: 44px; height: 44px; min-height: 0; padding: 0; border: 0; border-radius: 50%; background: transparent; display: grid; place-items: center; transition: transform 0.12s; }
+  .icon:hover, .tray button:hover { background: #EEF3F1; transform: translateY(-2px); }
+  .tray button[aria-checked="true"] { background: #FDE9B8; box-shadow: inset 0 0 0 2px var(--gold); }
+  .icon.speed { font: 700 17px/1 var(--ui); }
+  .icon.wide { width: auto; display: inline-flex; align-items: center; gap: 6px; padding: 0 12px 0 8px; border-radius: 22px; background: var(--gold); font-weight: 700; font-size: 14px; }
+  .icon.wide:hover { background: #F7BC5C; }
+  .icon:disabled { opacity: 0.35; transform: none; }
+
+  /* A friendly tip on the first visit. */
+  .tip { position: absolute; left: 50%; top: 16px; transform: translateX(-50%); width: min(420px, calc(100% - 140px)); display: flex; gap: 10px; align-items: center; background: var(--page); border: 2px solid var(--ink); border-radius: 14px; padding: 10px 12px; font-size: 14px; box-shadow: 0 3px 0 var(--ink); transition: opacity 0.4s; }
+  .tip[hidden] { display: none; }
+  .tip.fade { opacity: 0; }
+  .tip button { flex: none; min-height: 36px; padding: 4px 12px; border-radius: 18px; font-size: 14px; }
   button:disabled { opacity: 0.45; cursor: default; }
-  .toybox { display: flex; gap: 6px; align-items: center; overflow-x: auto; padding: 2px; scrollbar-width: none; }
-  .toybox .label { font: 700 20px/1 var(--hand); background: rgba(251,251,246,0.9); border-radius: 10px; padding: 6px 10px; flex: none; }
-  .toybox button { flex: none; min-height: 38px; padding: 4px 12px; font-size: 14px; border-radius: 19px; }
-  .toybox button[aria-pressed="true"] { background: var(--gold); }
-  .hint { font-size: 14px; color: var(--ink); background: rgba(251,251,246,0.9); border-radius: 10px; padding: 6px 10px; }
   .journal { flex: 0 0 380px; max-width: 42%; display: flex; flex-direction: column; background: var(--page); border-left: 2px solid var(--ink); min-height: 0; }
   .journal header { padding: 16px 20px 10px; border-bottom: 2px solid var(--rule); display: flex; flex-direction: column; gap: 6px; }
   .journal h1 { margin: 0; font-family: var(--hand); font-weight: 700; font-size: 34px; line-height: 1; text-wrap: balance; }
@@ -89,17 +110,36 @@
   @keyframes ink { from { background: #FDE9B8; } to { background: transparent; } }
   .link { font: inherit; font-weight: 700; color: var(--ink); background: none; border: 0; border-bottom: 2px solid var(--gold); border-radius: 0; padding: 0; min-height: 0; cursor: pointer; }
   .link:hover { background: #FDF1D6; }
+  .handle { display: none; }
+  /* Phones: the map gets the screen, and the journal is a drawer showing its newest line until you pull it up. */
   @media (max-width: 760px) {
-    .app { flex-direction: column; }
-    .stage { flex: 0 0 56%; }
-    .journal { flex: 1 1 auto; max-width: none; border-left: 0; border-top: 2px solid var(--ink); }
-    .journal header { padding: 10px 16px 8px; }
-    .journal h1 { font-size: 28px; }
-    .entries { padding: 4px 16px 20px; }
-    .hint { display: none; }
-    .zoom { top: 16px; }
-    .bottom { right: 16px; }
-    .zoom #zoomIn, .zoom #zoomOut { display: none; }
+    .app { position: relative; }
+    .stage { position: absolute; inset: 0 0 var(--peek) 0; }
+    .app { --peek: 150px; }
+    .journal:not(.open) .day:first-child { display: none; }
+    .journal { position: absolute; left: 0; right: 0; bottom: 0; height: var(--peek); max-width: none; border-left: 0; border-top: 2px solid var(--ink); border-radius: 18px 18px 0 0; box-shadow: 0 -4px 0 rgba(31,51,64,0.08); transition: height 0.3s ease; z-index: 5; }
+    .journal.open { height: 78%; }
+    .handle { display: block; width: 100%; min-height: 0; height: 22px; padding: 0; border: 0; border-radius: 18px 18px 0 0; background: transparent; position: relative; flex: none; }
+    .handle::after { content: ""; position: absolute; left: 50%; top: 8px; width: 44px; height: 5px; margin-left: -22px; border-radius: 3px; background: var(--rule); }
+    .journal header { padding: 0 16px 6px; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+    .journal h1 { font-size: 26px; flex: 1 1 auto; }
+    .journal .sub { display: none; }
+    .journal:not(.open) .tabs, .journal:not(.open) .chip { display: none; }
+    .entries { padding: 0 16px 20px; }
+    .journal:not(.open) .entries, .journal:not(.open) .words { overflow: hidden; }
+    .zoombtn { display: none; }
+    .dock { bottom: 12px; padding: 0 10px; }
+    .bar { max-width: 100%; justify-content: flex-start; }
+    .icon.wide span { display: none; }
+    .icon.wide { width: 44px; padding: 0; justify-content: center; }
+    /* Time controls move up into the corner, so the tray fits without scrolling. */
+    #timeSep { display: none; }
+    .corner .group { flex-direction: column; gap: 8px; }
+    .corner .icon { background: var(--page); border: 2px solid var(--ink); }
+    .corner .icon.wide { background: var(--gold); }
+    .icon, .tray button { width: 40px; height: 40px; }
+    .bar { padding: 4px 6px; }
+    .tip { top: auto; bottom: 84px; width: calc(100% - 24px); }
   }
   @media (prefers-reduced-motion: reduce) { .entry.new { animation: none; } }
 </style>
@@ -114,26 +154,35 @@
       <div class="found" id="hudFound">0 of 10 places found</div>
       <div class="found" id="hudTown" hidden></div>
     </div>
-    <div class="zoom">
-      <button id="zoomIn" type="button" aria-label="Zoom in" title="Zoom in (+)">+</button>
-      <button id="zoomOut" type="button" aria-label="Zoom out" title="Zoom out (−)">−</button>
-      <button id="btnFind" type="button" aria-label="Find Pip" title="Find Pip" hidden>◎</button>
+    <div class="corner">
+      <button id="btnSound" class="round" type="button"></button>
+      <button id="zoomIn" class="round zoombtn" type="button"></button>
+      <button id="zoomOut" class="round zoombtn" type="button"></button>
+      <button id="btnFind" class="round" type="button" hidden></button>
     </div>
-    <div class="bottom">
-      <div class="toybox" id="toybox" aria-label="Toybox">
-        <span class="label">Leave a…</span>
+    <div class="dock">
+      <div class="special">
+        <button id="btnDream" class="pill main" type="button" hidden></button>
+        <button id="btnBounce" class="pill main" type="button" hidden></button>
       </div>
-      <div class="controls">
-        <button id="btnPlay" type="button">Pause</button>
-        <button id="btnSpeed" type="button">Speed: 1×</button>
-        <button id="btnSkip" class="main" type="button">Come back tomorrow</button>
-        <button id="btnDream" type="button" hidden>Watch Pip dream</button>
-        <button id="btnBounce" type="button" hidden>Bounce up the tower</button>
-        <button id="btnRain" type="button">Rain</button>
-        <button id="btnWind" type="button">Wind</button>
-        <button id="btnSound" type="button">Sound: on</button>
-        <span class="hint">Tap the map to leave a toy. Tap a dot to poke it.</span>
+      <div class="bar">
+        <div class="group tray" id="toybox" role="radiogroup" aria-label="Leave a toy"></div>
+        <span class="sep" aria-hidden="true"></span>
+        <div class="group">
+          <button id="btnRain" class="icon" type="button"></button>
+          <button id="btnWind" class="icon" type="button"></button>
+        </div>
+        <span class="sep" id="timeSep" aria-hidden="true"></span>
+        <div class="group" id="timeGroup">
+          <button id="btnPlay" class="icon" type="button"></button>
+          <button id="btnSpeed" class="icon speed" type="button">1×</button>
+          <button id="btnSkip" class="icon wide" type="button"></button>
+        </div>
       </div>
+    </div>
+    <div class="tip" id="tip" hidden>
+      <span>Tap the map to leave a toy. Tap a dot to poke it, and again to play. Zoom in close and they notice you.</span>
+      <button id="tipClose" type="button" aria-label="Got it">Got it</button>
     </div>
     <div class="dream" id="dreamWrap" hidden>
       <div class="dreambox">
@@ -162,7 +211,8 @@
       </div>
     </div>
   </div>
-  <aside class="journal" aria-label="Journal">
+  <aside class="journal" id="journal" aria-label="Journal">
+    <button class="handle" id="handle" type="button" aria-label="Open the journal" aria-expanded="false"></button>
     <header>
       <h1 id="jTitle">The little one's journal</h1>
       <p class="sub" id="jSub">It writes this by itself. Tap an underlined name to find it.</p>
