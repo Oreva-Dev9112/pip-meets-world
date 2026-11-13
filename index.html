@@ -1,55 +1,184 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Pip Meets World</title>
-    <style>
-      html, body { height: 100%; margin: 0; background: #e9edf3; color: #2b2140; font: 15px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; }
-      canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
-      .card { position: fixed; background: #fff; border: 2px solid #2b2140; border-radius: 14px; box-shadow: 0 4px 0 #2b2140; padding: 10px 14px; }
-      .about { left: 12px; top: 12px; max-width: min(340px, calc(100% - 24px)); }
-      .about h1 { margin: 0; font-size: 22px; line-height: 1.1; }
-      .about p { margin: 4px 0 0; }
-      a { color: #2b2140; font-weight: 700; }
-      .zoom { right: 12px; top: 12px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
-      button { width: 44px; height: 44px; font: 700 22px/1 system-ui, sans-serif; color: #2b2140; background: #fff; border: 2px solid #2b2140; border-radius: 10px; cursor: pointer; }
-      button:hover { background: #f3f0f8; }
-      .text-button { width: auto; height: auto; min-height: 40px; margin-top: 8px; padding: 6px 12px; font-size: 14px; }
-      #clock { font-variant-numeric: tabular-nums; font-weight: 600; }
-      button:focus-visible, a:focus-visible { outline: 3px solid #ffb703; outline-offset: 2px; }
-      .legend { left: 12px; bottom: 12px; display: flex; flex-wrap: wrap; gap: 4px 12px; max-width: calc(100% - 24px); font-size: 13px; padding: 8px 12px; }
-      .legend span { display: inline-flex; align-items: center; gap: 5px; }
-      .legend i { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid #2b2140; }
-      .credit { position: fixed; right: 12px; bottom: 12px; font-size: 12px; background: rgba(255, 255, 255, 0.85); border-radius: 8px; padding: 3px 8px; }
-      /* Phones pinch to zoom, so the buttons are hidden there. */
-      @media (max-width: 700px) { .zoom { display: none; } .credit { bottom: 104px; right: 12px; } .about h1 { font-size: 19px; } .legend { font-size: 12px; } }
-    </style>
-  </head>
-  <body>
-    <canvas id="stage" aria-label="A map of Soho in London with bubbles bouncing along its streets"></canvas>
-    <div class="card about">
-      <h1>Pip Meets World</h1>
-      <p id="status">Loading the map…</p>
-      <p id="clock" aria-live="off"></p>
-      <button id="time-mode" class="text-button" type="button">Fast-forward a day</button>
-      <p>Drag to look around. Zoom out to rise above the clouds. <a href="./prototype/">Play the prototype sketch</a></p>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pip Meets World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Layout: the map fills the stage; the journal is a notebook beside it (below it on phones). */
+    --chart: #E4ECEC;   /* unexplored chart paper */
+    --ink: #1F3340;     /* text and outlines */
+    --sea: #9CCFD3;
+    --gold: #F2A93B;    /* your dot's ring, and the accent */
+    --page: #FBFBF6;    /* journal page */
+    --rule: #C9D6D8;    /* ruled lines and borders */
+    --muted: #4F6570;
+    --hand: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+    --ui: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; background: var(--chart); color: var(--ink); font-family: var(--ui); }
+  .app { height: 100%; display: flex; }
+  .stage { position: relative; flex: 1 1 auto; min-width: 0; overflow: hidden; background: var(--chart); }
+  #map { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: pointer; touch-action: none; }
+  .hud { position: absolute; left: 16px; top: 16px; display: flex; flex-direction: column; gap: 2px; background: var(--page); border: 2px solid var(--ink); border-radius: 14px; padding: 10px 14px; max-width: calc(100% - 32px); }
+  .hud .name { font-family: var(--hand); font-weight: 700; font-size: 30px; line-height: 1; display: flex; align-items: center; gap: 8px; }
+  .hud .ring { width: 16px; height: 16px; border-radius: 50%; background: #F7D774; border: 3px solid var(--gold); flex: none; }
+  .hud .when, .hud .found { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .bottom { position: absolute; left: 16px; right: 72px; bottom: 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; pointer-events: none; }
+  .bottom > * { pointer-events: auto; max-width: 100%; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  button { font: 600 15px var(--ui); color: var(--ink); background: var(--page); border: 2px solid var(--ink); border-radius: 12px; min-height: 44px; padding: 8px 14px; cursor: pointer; }
+  button:hover { background: #fff; }
+  button:focus-visible, .link:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+  button.main { background: var(--gold); }
+  button.main:hover { background: #F7BC5C; }
+  .zoom { position: absolute; right: 16px; top: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .zoom button { width: 44px; padding: 0; font-size: 22px; }
+  button[hidden] { display: none; }
+  button:disabled { opacity: 0.45; cursor: default; }
+  .toybox { display: flex; gap: 6px; align-items: center; overflow-x: auto; padding: 2px; scrollbar-width: none; }
+  .toybox .label { font: 700 20px/1 var(--hand); background: rgba(251,251,246,0.9); border-radius: 10px; padding: 6px 10px; flex: none; }
+  .toybox button { flex: none; min-height: 38px; padding: 4px 12px; font-size: 14px; border-radius: 19px; }
+  .toybox button[aria-pressed="true"] { background: var(--gold); }
+  .hint { font-size: 14px; color: var(--ink); background: rgba(251,251,246,0.9); border-radius: 10px; padding: 6px 10px; }
+  .journal { flex: 0 0 380px; max-width: 42%; display: flex; flex-direction: column; background: var(--page); border-left: 2px solid var(--ink); min-height: 0; }
+  .journal header { padding: 16px 20px 10px; border-bottom: 2px solid var(--rule); display: flex; flex-direction: column; gap: 6px; }
+  .journal h1 { margin: 0; font-family: var(--hand); font-weight: 700; font-size: 34px; line-height: 1; text-wrap: balance; }
+  .journal .sub { margin: 0; font-size: 14px; color: var(--muted); }
+  .tabs { display: flex; gap: 6px; }
+  .tabs button { min-height: 36px; padding: 4px 12px; font-size: 14px; border-radius: 18px; }
+  .tabs button[aria-selected="true"] { background: var(--ink); color: var(--page); }
+  .words { flex: 1 1 auto; overflow-y: auto; margin: 0; padding: 12px 20px 24px; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .words[hidden], .entries[hidden] { display: none; }
+  .words .note { color: var(--muted); font-size: 14px; }
+  .word { display: flex; gap: 12px; align-items: baseline; }
+  .word strong { font: 700 26px/1 var(--hand); min-width: 80px; }
+  .word span { font-size: 15px; }
+  .dream { position: absolute; inset: 0; background: rgba(31,51,64,0.55); display: flex; align-items: center; justify-content: center; padding: 12px; }
+  .dream[hidden], .dmsg[hidden] { display: none; }
+  .dreambox { position: relative; width: min(100%, 860px); background: var(--page); border: 2px solid var(--ink); border-radius: 16px; overflow: hidden; }
+  #dream { display: block; width: 100%; aspect-ratio: 16 / 9; touch-action: none; cursor: pointer; }
+  .dmsg { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; padding: 20px; background: rgba(251,251,246,0.92); }
+  .dmsg h2 { margin: 0; font: 700 36px/1 var(--hand); text-wrap: balance; }
+  .dmsg p { margin: 0; max-width: 46ch; font-size: 16px; }
+  .dmsg .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  #bounce { display: block; width: 100%; aspect-ratio: 16 / 9; touch-action: none; }
+  .quit { position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; padding: 0; border-radius: 50%; }
+  .quit[hidden] { display: none; }
+  /* Roll and jump pads, for touch screens only. */
+  /* The tower takes the whole screen, journal and all. */
+  #bounceWrap { position: fixed; z-index: 50; }
+  .pads { display: none; padding: 10px 12px 12px; border-top: 2px solid var(--ink); }
+  .pads button { width: 72px; height: 72px; border-radius: 50%; font-size: 24px; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .pads .jump { margin-left: auto; width: 84px; font: 700 22px/1 var(--hand); }
+  .pads button + button { margin-left: 10px; }
+  @media (pointer: coarse) { .pads { display: flex; } }
+  .chip { align-self: flex-start; font-size: 14px; min-height: 36px; padding: 4px 10px; border-radius: 18px; background: #FDF1D6; }
+  .entries { flex: 1 1 auto; overflow-y: auto; margin: 0; padding: 6px 20px 24px; list-style: none; display: flex; flex-direction: column;
+    background-image: repeating-linear-gradient(to bottom, transparent 0 35px, var(--rule) 35px 36px); background-attachment: local; }
+  .entries li { padding: 0; }
+  .day { font: 700 12px/36px var(--ui); letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); }
+  .entry { font-family: var(--hand); font-weight: 500; font-size: 23px; line-height: 36px; margin: 0; }
+  .entry.new { animation: ink 2.4s ease-out; }
+  @keyframes ink { from { background: #FDE9B8; } to { background: transparent; } }
+  .link { font: inherit; font-weight: 700; color: var(--ink); background: none; border: 0; border-bottom: 2px solid var(--gold); border-radius: 0; padding: 0; min-height: 0; cursor: pointer; }
+  .link:hover { background: #FDF1D6; }
+  @media (max-width: 760px) {
+    .app { flex-direction: column; }
+    .stage { flex: 0 0 56%; }
+    .journal { flex: 1 1 auto; max-width: none; border-left: 0; border-top: 2px solid var(--ink); }
+    .journal header { padding: 10px 16px 8px; }
+    .journal h1 { font-size: 28px; }
+    .entries { padding: 4px 16px 20px; }
+    .hint { display: none; }
+    .zoom { top: 16px; }
+    .bottom { right: 16px; }
+    .zoom #zoomIn, .zoom #zoomOut { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .entry.new { animation: none; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="stage">
+    <canvas id="map" role="img" aria-label="A hand-drawn island map. A small dot with a gold ring explores it, and fog clears where it has been."></canvas>
+    <div class="hud">
+      <div class="name"><span class="ring" aria-hidden="true"></span><span id="hudName">The little one</span></div>
+      <div class="when" id="hudWhen">Day 1, morning</div>
+      <div class="found" id="hudFound">0 of 10 places found</div>
+      <div class="found" id="hudTown" hidden></div>
     </div>
-    <div class="card zoom">
-      <button id="zoom-in" type="button" aria-label="Zoom in" title="Zoom in (+)">+</button>
-      <button id="zoom-out" type="button" aria-label="Zoom out" title="Zoom out (−)">−</button>
+    <div class="zoom">
+      <button id="zoomIn" type="button" aria-label="Zoom in" title="Zoom in (+)">+</button>
+      <button id="zoomOut" type="button" aria-label="Zoom out" title="Zoom out (−)">−</button>
+      <button id="btnFind" type="button" aria-label="Find Pip" title="Find Pip" hidden>◎</button>
     </div>
-    <div class="card legend" aria-label="Map key">
-      <span><i style="background: #ff9f6b"></i>café</span>
-      <span><i style="background: #f2c94c"></i>pub or bar</span>
-      <span><i style="background: #ff7a7a"></i>food</span>
-      <span><i style="background: #ff6fb5"></i>theatre or cinema</span>
-      <span><i style="background: #b79bff"></i>treats</span>
-      <span><i style="background: #d9a05b"></i>bakery</span>
-      <span><i style="background: #6c8cff"></i>records</span>
-      <span><i style="background: #4fb0a5"></i>books</span>
+    <div class="bottom">
+      <div class="toybox" id="toybox" aria-label="Toybox">
+        <span class="label">Leave a…</span>
+      </div>
+      <div class="controls">
+        <button id="btnPlay" type="button">Pause</button>
+        <button id="btnSpeed" type="button">Speed: 1×</button>
+        <button id="btnSkip" class="main" type="button">Come back tomorrow</button>
+        <button id="btnDream" type="button" hidden>Watch Pip dream</button>
+        <button id="btnBounce" type="button" hidden>Bounce up the tower</button>
+        <button id="btnRain" type="button">Rain</button>
+        <button id="btnWind" type="button">Wind</button>
+        <button id="btnSound" type="button">Sound: on</button>
+        <span class="hint">Tap the map to leave a toy. Tap a dot to poke it.</span>
+      </div>
     </div>
-    <div class="credit">Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a></div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+    <div class="dream" id="dreamWrap" hidden>
+      <div class="dreambox">
+        <canvas id="dream" width="800" height="450" aria-label="Dream game. Hold to float up, let go to sink. Avoid the gulls."></canvas>
+        <div class="dmsg" id="dmsg">
+          <h2 id="dTitle">Pip is dreaming</h2>
+          <p id="dText"></p>
+          <div class="row"><button class="main" id="dGo" type="button">Start dreaming</button><button id="dWake" type="button" hidden>Wake up and keep it</button><button id="dClose" type="button" hidden>Back to the island</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="dream" id="bounceWrap" hidden>
+      <div class="dreambox">
+        <canvas id="bounce" width="800" height="450" aria-label="Bouncing up the tower. Arrow keys or A and D to roll, space or up to jump."></canvas>
+        <button class="quit" id="bQuit" type="button" aria-label="Leave the tower">✕</button>
+        <div class="pads" id="bPads">
+          <button type="button" data-key="ArrowLeft" aria-label="Roll left">◀</button>
+          <button type="button" data-key="ArrowRight" aria-label="Roll right">▶</button>
+          <button type="button" data-key="Space" class="jump" aria-label="Jump">Jump</button>
+        </div>
+        <div class="dmsg" id="bmsg">
+          <h2 id="bTitle">The Stairless Tower</h2>
+          <p id="bText"></p>
+          <div class="row"><button class="main" id="bGo" type="button">Start bouncing</button><button id="bClose" type="button" hidden>Back to the island</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="journal" aria-label="Journal">
+    <header>
+      <h1 id="jTitle">The little one's journal</h1>
+      <p class="sub" id="jSub">It writes this by itself. Tap an underlined name to find it.</p>
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" id="tabJ" aria-selected="true">Journal</button>
+        <button type="button" role="tab" id="tabW" aria-selected="false">Their words</button>
+      </div>
+      <button id="chip" class="chip" type="button" hidden></button>
+      <button id="back" class="chip" type="button" hidden>Back to Pip's journal  ✕</button>
+    </header>
+    <ol class="entries" id="entries" aria-live="polite"></ol>
+    <ol class="words" id="words" hidden></ol>
+    <ol class="entries" id="diary" hidden></ol>
+  </aside>
+</div>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
 </html>

@@ -2,7 +2,7 @@
   "name": "pip-meets-world",
   "private": true,
   "version": "0.0.1",
-  "description": "A tiny sitcom of bubbles living their own lives on a real map. You drop one, and you watch.",
+  "description": "A little dot explores an island by itself and writes a journal about it. You watch, and leave it the odd gift.",
   "license": "MIT",
   "type": "module",
   "scripts": {

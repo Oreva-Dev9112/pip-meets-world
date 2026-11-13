@@ -2,108 +2,77 @@
 
 ## The pitch
 
-A tiny sitcom runs by itself on a real map, and one of the cast is yours.
+A little dot arrives on an island and writes a journal about finding its way around. You can't control it. You watch, you read, and sometimes you leave it a gift.
 
-You drop one bubble onto a map of Soho. You can't control it. It bounces about, makes friends and enemies, has silly ideas and writes a journal about its day. Everyone else's bubbles live on the same map, so there is always something going on.
-
-The feeling to aim for is little creatures living in a machine, busy with their own lives, chattering in a language you can almost follow. It should be funny first, and it should feel like watching a film.
+It should be funny first, a bit mysterious second, and calm throughout. The feeling to aim for is reading someone's diary while watching over their shoulder.
 
 ## How it plays
 
-The player does very little, on purpose. Bubbles do their own thing and the player watches.
+1. Open the game. The island is blank chart paper except for a small patch around home.
+2. The dot sets off by itself. The map fills in where it goes, and its paths wear into the grass.
+3. Read the journal. Tap a place to see it on the map, or tap a neighbour's name to see everything about them.
+4. Leave a toy (a berry, ball, hat, umbrella, kite or flower) on ground the dot has already seen, or make it rain or blow. The dots use toys in their own ways and write about them.
+5. Poke a dot. It complains, and a "Play?" bubble offers a game of bounce as that dot.
+6. Zoom in on a dot and watch it. Sooner or later it notices you.
+7. Pause, speed up, or skip to tomorrow. At night, play Pip's dream.
 
-1. Open the map. Bubbles are already bouncing around it.
-2. Drop one bubble anywhere. It becomes your Pip and gets a gold ring so you can find it.
-3. Watch what it gets up to, and read its journal.
-4. Tap any other bubble to read its journal and see how it is living.
-5. Once a night, play your Pip's dream. A good dream makes it richer.
-6. Come back later to see what it did with the money.
+On the island the player can't steer the dot, give it orders or choose where it goes. The only time you control a dot is inside a bounce game, which is a side-on world of its own.
 
-The player cannot steer a bubble, give it orders or choose what it buys.
+## The dot
 
-## The bubbles
+- It explores further each day, preferring places it hasn't seen.
+- Sometimes it goes back to a place it already knows.
+- In the evening it walks home and sleeps. On a quiet day it says so.
+- On day 2 the others start calling it Pip. On day 3 it builds a roof.
 
-### How they move
+## The places
 
-- They bounce. Happy bubbles bounce high and springy, calm ones low and slow, sad ones barely leave the ground.
-- They squeeze through letterboxes and bounce off awnings, buses and each other.
-- Wind blows the whole cast a few streets over. Pigeons are a constant hazard.
-- Two bubbles that like each other stick together for a while.
-- They never quite pop. They deflate, lie flat for an hour, then carry on.
+Ten places sit at set distances from home, so the strange ones are found later:
 
-### The cast
+the Berry Bushes, Lookback Pond, the Big Oak, Yellow Meadow, the Old Bridge, the Stone Ring, the Humming Cave, the Door in the Hill, the Stairless Tower and the World's Edge.
 
-| Type | What it does | Journal voice |
-| --- | --- | --- |
-| The Diva | Waits for an audience before doing anything | "I arrived. People noticed." |
-| The Worrier | Hugs walls and keeps a list of dangerous pigeons | "Crossed a road. Never again." |
-| The Schemer | Always trying to get into the rooftop bar | "Phase two begins at dusk." |
-| The Romantic | Falls for a different bubble every week | "It's different this time." |
-| The Old-Timer | Never leaves the square and comments on everyone | "In my day we bounced properly." |
-| The Chaos One | Bounces off everything and causes pile-ups | "WHAT a day." |
-| The Foodie | Drifts from café to café | "Second lunch was a triumph." |
+Each has a first line. Some have follow-ups that build a mystery over several visits, like the tally marks behind the door and the stones that keep growing in number.
 
-### Freedom to do daft things
+## The neighbours
 
-- **Whims.** Now and then a bubble ignores what it needs and does something for no reason.
-- **Mix-and-match actions.** An action is built from what, to what, and how: "declare love to" + "a lamp post" + "in secret".
-- **Obsessions.** A bubble fixates on one roof, one rival or one bus for a few days.
-- **Chain reactions.** Other bubbles react to what they see, which creates storylines nobody wrote.
-- **Rare big decisions.** A bubble gives away its money, changes character or declares itself mayor.
+Odo and Bim live some way from home. The dot meets each at most once a day.
 
-### Their own slang
-
-Bubbles coin words from syllables. Words spread by contact, compete between streets and drift into accents. The player gets a dictionary that fills itself in as they watch a word being used. It is vocabulary only, not grammar.
-
-## Dreams and money
-
-The player earns and the bubble spends. The dream is the only part the player actually plays.
-
-- When your Pip sleeps, it dreams, and the dream is a short bounce level. The motto is "dream big".
-- Dreams are built from the bubble's day. An afternoon in a café becomes a level of giant teacups.
-- One dream a night, a few minutes long. Skipping a night costs nothing.
-- At each milestone the player chooses: wake up now and keep what they have, or keep dreaming for more and risk losing it all.
-- Difficulty is medium. Most dreams end with points only.
-
-| Result | Worth | How |
-| --- | --- | --- |
-| Points | Small money | Bouncing well and going far |
-| Treasures | Big money, the real route to a good life | Rare objects at milestones, in a different spot every time |
-| Nothing | Nothing | Falling before reaching anything worth keeping |
-
-### Size shows wealth
-
-| Wealth | Size |
+| Stage | What happens |
 | --- | --- |
-| Broke | Tiny |
-| Getting by | Small |
-| Rich | Medium-big |
-| Very, very rich | Slightly bigger, and that is the cap |
+| 1–2 | Awkward passing, then nodding. The dot calls them "the blue one" and "the pink one". |
+| 3 | It learns their name. |
+| 4–6 | Small moments together. From 5 they start tagging along after the dot. |
+| 7 and on | Friends. They drop hints about the old ones. |
 
-Living well costs coins every day, so a rich bubble that stops dreaming well shrinks back. Treasures get rarer the richer a bubble is. The bubble decides how to spend, by character.
+## Toys and weather
 
-## The shared map
+Each toy gets a journal line, and over several the dot starts to wonder who is leaving them. Each character wants a different one: the Diva takes the hat, the Worrier wants the umbrella, the Chaos One the kite. Rain sends everyone for cover; wind blows hats off and lifts kites.
 
-- **Soho first.** It is small and full of cafés, pubs, theatres and two squares.
-- **Unlocking.** A coverage meter shows how much has been explored. When it is high enough, the next area opens.
-- **Never empty.** A native population of wild bubbles lives there from day one.
-- **Map data.** Streets and place types will come from OpenStreetMap, credited as its licence requires.
+## The town in the north
 
-The server never runs the bubbles. It is a guest book. Each bubble is stored as a small record, and its whole life is worked out from that record and the clock. Every browser calculates the same thing, so everyone sees the same bubbles doing the same things.
+Once most of the island is found, a causeway appears overnight. Across it is a town grown from its own seed, with seven venues and fourteen townsfolk drawn from the seven characters. They have needs, coins and diaries of their own, and you can tap any of them to read theirs.
+
+## Words, singing and chats
+
+The dots speak made-up words, and Pip learns each one after hearing it enough times. Words are sung like a music box, so each one has its own tune. Two dots who meet stop for a back-and-forth chat. Once Pip knows a word, its meaning appears under the bubble, so their chats slowly become readable.
+
+## Being watched
+
+Zoom in on a dot or rest the mouse on it and it starts to feel watched. It stops, looks straight out of the screen at you, reacts in character, then carries on, very casually. They gossip about "the one who watches", and over the days they get used to you and wave.
+
+## Bounce games
+
+Every dot has its own side-on bounce course. Air is your life: knocks let it out, air bubbles pump you back up, and the bigger you are, the higher you bounce. The strange places are bounce levels too, each answering a piece of the mystery. The first is the Stairless Tower, with writing at the top.
 
 ## Ground rules
 
-- No AI inside the game. Behaviour comes from needs, traits, whims and hand-written parts.
-- No sign-in. The player's device remembers which bubble is theirs.
-- No typed text from players. Bubbles name themselves.
-- No location tracking. Players drop a bubble by tapping the map.
-- Play money only. Coins come from dreams and cannot be bought or cashed out.
-- Real places stay generic. A bubble "has a coffee at a café on Dean Street", with no real business names, prices or opinions.
-- Watch-only. Nobody can interfere with a bubble, including their own.
+- No AI inside the game. Every line is hand-written.
+- No sign-in and no typed text from players.
+- Watch-only on the island. Nobody can steer the dots there; the bounce games are the one place you take control.
+- Gentle. No lives and no game over: lose all your air and you're back at the last lantern.
 
 ## Open questions
 
-- Is every player's bubble called Pip, or do they name themselves?
-- Are treasures kept and shown off as well as being worth money?
-- How long does a bubble live, and what happens at the end?
-- How much of Soho must be explored before the next area unlocks?
+- What is the answer to the mystery, and how much of it does the player ever learn? So far: the old ones went north, and asked whoever came next to leave the door open.
+- Does the game end, or does the island keep going?
+- How should a saved island feel when you come back after a few days away?
