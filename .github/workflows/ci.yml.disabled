@@ -1,3 +1,8 @@
+# Parked. GitHub only reads .yml and .yaml files in this folder, so while this
+# file keeps the .disabled suffix the workflow never runs.
+#
+# To switch it back on, rename this file to ci.yml.
+
 name: ci
 
 on:
